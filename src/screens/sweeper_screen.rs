@@ -2,7 +2,7 @@ use getrandom;
 
 use ggez;
 use ggez::{Context, GameResult};
-use ggez::graphics::{self, Color, DrawParam};
+use ggez::graphics::{self, Color, DrawParam, Rect};
 
 use oorandom::Rand32;
 
@@ -248,7 +248,7 @@ impl GamePanel {
         for button in &self.buttons {
             let button_label = graphics::Text::new((button.text.clone(), font, 24.0));
             let (x,y) = button.offset;
-            let (tx, ty) = button_label.dimensions(_ctx);
+            let Rect{w: tx, h: ty, x: _, y: _ } = button_label.dimensions(_ctx);
             
             let label_x = ((button_width - tx as f32) / 2.0) + x;
             let label_y = ((button_height - ty as f32) / 2.0) + y;
@@ -259,7 +259,7 @@ impl GamePanel {
         // draw flag counter text
         let flag_counter = self.num_flags.to_string();
         let flag_label = graphics::Text::new((flag_counter, font, 24.0));
-        let (cx, cy) = flag_label.dimensions(_ctx);
+        let Rect{w: cx, h: cy, x: _, y: _ } = flag_label.dimensions(_ctx);
         let label_x = ((button_width - cx as f32) / 2.0) + 45.0;
         let label_y = ((button_height - cy as f32) / 2.0) + 390.0;
         let draw_param = DrawParam::new().dest(glam::Vec2::new(label_x, label_y));
@@ -592,7 +592,7 @@ impl GameBoard {
             
             if self.is_uncovered[i] && !self.is_crab[i] && self.adjacency[i] > 0 {
                 let adjacency_label = graphics::Text::new((self.adjacency[i].to_string(), font, 24.0));
-                let (tx, ty) = adjacency_label.dimensions(ctx);
+                let Rect{w: tx, h: ty, x: _, y: _ } = adjacency_label.dimensions(ctx);
                 let label_x = ((32.0 - tx as f32) / 2.0) + px;
                 let label_y = ((32.0 - ty as f32) / 2.0) + py;
                 let draw_param = DrawParam::new().dest(glam::Vec2::new(label_x, label_y)).color(graphics::Color::from((48, 81, 130, 255)));
@@ -607,7 +607,7 @@ impl GameBoard {
 
             let game_over_text = match self.win { true => "#WINNING", false => "GAME OVER"};
             let game_over_label = graphics::Text::new((game_over_text, font, 72.0));
-            let (tx, ty) = game_over_label.dimensions(ctx);
+            let Rect{w: tx, h: ty, x: _, y: _ }= game_over_label.dimensions(ctx);
             let label_x = ((board_width - tx as f32) / 2.0) + self.px_left;
             let label_y = ((board_height - ty as f32) / 2.0) + self.px_top;
             let draw_param = DrawParam::new().dest(glam::Vec2::new(label_x, label_y));

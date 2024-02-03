@@ -1,20 +1,20 @@
-use ggez;
 use ggez::conf;
 use ggez::event::{self};
 use ggez::graphics::{self};
-use ggez::input::mouse::{MouseButton};
+use ggez::input::mouse::MouseButton;
 use ggez::timer;
+use ggez::{self, GameError};
 use ggez::{Context, ContextBuilder, GameResult};
 use glam::*;
 
 use std::path;
 
 mod screens;
-use screens::game_screen::{GameScreen};
-use screens::splash_screen::{SplashScreen};
+use screens::game_screen::GameScreen;
+use screens::splash_screen::SplashScreen;
 
 mod ui_common;
-use ui_common::mouse_input_handler::{MouseInputHandler};
+use ui_common::mouse_input_handler::MouseInputHandler;
 
 mod constants {
     pub const SCREEN_WIDTH: f32 = 800.0;
@@ -23,8 +23,8 @@ mod constants {
 }
 
 struct GameState {
-    screen:  Box<dyn GameScreen>,
-    mouse_input_handler: MouseInputHandler
+    screen: Box<dyn GameScreen>,
+    mouse_input_handler: MouseInputHandler,
 }
 
 impl GameState {
@@ -33,12 +33,12 @@ impl GameState {
         let mouse_input_handler = MouseInputHandler::new();
         GameState {
             screen: Box::new(initial_state),
-            mouse_input_handler
+            mouse_input_handler,
         }
     }
 }
 
-impl event::EventHandler for GameState {
+impl event::EventHandler<GameError> for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         const DESIRED_FPS: u32 = 60;
 
@@ -53,27 +53,28 @@ impl event::EventHandler for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, self.screen.get_bg_color()?);
+        // graphics::clear(ctx, self.screen.get_bg_color()?);
 
         self.screen.draw(ctx)?;
 
-        graphics::present(ctx)?;
-        
+        // graphics::present(ctx)?;
+
         Ok(())
     }
 
-    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: f32, y:f32){
-        self.mouse_input_handler.record_button_click(button, x, y, true);
-    }
-    
-    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, x: f32, y:f32){
-        self.mouse_input_handler.record_button_click(button, x, y, false);
+    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
+        self.mouse_input_handler
+            .record_button_click(button, x, y, true);
     }
 
-    fn mouse_motion_event(&mut self, _ctx: &mut Context, x: f32, y: f32, _dx: f32, _dy: f32){
+    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
+        self.mouse_input_handler
+            .record_button_click(button, x, y, false);
+    }
+
+    fn mouse_motion_event(&mut self, _ctx: &mut Context, x: f32, y: f32, _dx: f32, _dy: f32) {
         self.mouse_input_handler.record_mouse_motion(x, y);
     }
-
 }
 
 pub fn main() -> GameResult {
@@ -81,11 +82,14 @@ pub fn main() -> GameResult {
 
     let cb = ContextBuilder::new("Crab Sweeper", "sethrah")
         .window_setup(conf::WindowSetup::default().title("Crab Sweeper!"))
-        .window_mode(conf::WindowMode::default().dimensions(constants::SCREEN_WIDTH, constants::SCREEN_HEIGHT))
-        .add_resource_path(resource_dir);        
+        .window_mode(
+            conf::WindowMode::default()
+                .dimensions(constants::SCREEN_WIDTH, constants::SCREEN_HEIGHT),
+        )
+        .add_resource_path(resource_dir);
 
     let (mut ctx, mut events_loop) = cb.build()?;
 
     let mut game = GameState::new(&mut ctx);
-    event::run(&mut ctx, &mut events_loop, &mut game)
+    event::run(ctx, events_loop, game)
 }
